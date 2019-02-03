@@ -7,14 +7,16 @@ import (
 	"os"
 )
 
-func castRay(orig, dir vec3, s shape) vec3 {
-	if s.rayIntersect(orig, dir) {
-		return vec3{255, 0, 0}
+func castRay(orig, dir vec3, sps []shape) vec3 {
+	for _, s := range sps {
+		if s.rayIntersect(orig, dir) {
+			return vec3{255, 0, 0}
+		}
 	}
 	return vec3{0, 0, 0}
 }
 
-func render(s shape) {
+func render(sps []shape) {
 	//var width, height float64 = 2880 / 4, 1800 / 4
 	var width, height float64 = 1024, 768
 	frame := make([]vec3, int(width*height))
@@ -24,7 +26,7 @@ func render(s shape) {
 		for j := 0.0; j < float64(width); j++ {
 			x := (2*(j+0.5)/float64(width) - 1) * math.Tan(fov/2) * float64(width/height)
 			y := -(2*(i+0.5)/float64(height) - 1) * math.Tan(fov/2)
-			frame[int(i*width+j)] = castRay(vec3{0, 0, 0}, vec3{x, y, -1}, s)
+			frame[int(i*width+j)] = castRay(vec3{0, 0, 0}, vec3{x, y, -1}, sps)
 		}
 	}
 
@@ -56,6 +58,13 @@ func render(s shape) {
 }
 
 func main() {
-	sp := Sphere{vec3{-3, 0, -16}, 2}
-	render(sp)
+	spheres := []Sphere{
+		{vec3{-3, 0, -16}, 2},
+		{vec3{12, 5, -25}, 4},
+	}
+	shapes := make([]shape, len(spheres))
+	for i := range shapes {
+		shapes[i] = spheres[i]
+	}
+	render(shapes)
 }
