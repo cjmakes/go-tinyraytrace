@@ -2,8 +2,6 @@ package main
 
 import "math"
 
-type vec3 [3]float64
-
 // Magnitude return the length of a vector
 func (v *vec3) Magnitude() float64 {
 	var len float64
@@ -39,7 +37,7 @@ func (v *vec3) ScalarProduct(k float64) (ret vec3) {
 
 // DotProduct computes the dot product of v * v2
 func (v *vec3) DotProduct(v2 vec3) float64 {
-	var dp float64
+	dp := 0.0
 	for i := range v {
 		dp += v[i] * v2[i]
 	}
@@ -52,4 +50,9 @@ func (v *vec3) Abs() (ret vec3) {
 		ret[i] = math.Abs(v[i])
 	}
 	return
+}
+
+// Norm returns a unit vector in the direction of v
+func (v *vec3) Norm() (ret vec3) {
+	return v.ScalarProduct(1 / v.Magnitude())
 }

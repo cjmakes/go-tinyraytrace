@@ -1,24 +1,36 @@
 package main
 
-type shape interface {
-	rayIntersect(orig, dir vec3) bool
+import "math"
+
+// Color returns the material of the sphere
+func (s Sphere) Color() Material {
+	return s.Mat
 }
 
-// Sphere is a round object
-type Sphere struct {
-	Center vec3
-	Radius float64
-}
-
-// Orig is a point, dir is a vector
-func (s Sphere) rayIntersect(orig, dir vec3) bool {
+// orig is the origin of the ray
+// dir is the unit vector
+// Returns if the ray hit, and if so, what the point of intersection is
+func (s Sphere) rayIntersect(orig, dir vec3) (hit bool, hitpos, normal vec3) {
+	dir = dir.Norm()
 	oc := s.Center.Sub(orig)
-	proj := dir.ScalarProduct(dir.DotProduct(oc) / dir.Magnitude())
-	dist := oc.Sub(proj)
-
-	// The case where the ray does not hit the sphere
-	if dist.Magnitude() > s.Radius {
-		return false
+	OQ := orig.Add(dir.ScalarProduct(dir.DotProduct(oc)))
+	CQ := oc.Sub(OQ)
+	if CQ.Magnitude() > s.Radius {
+		return false, vec3{}, vec3{}
 	}
-	return true
+	lenPQ := math.Sqrt(s.Radius*s.Radius - CQ.Magnitude()*CQ.Magnitude())
+	lenOP := OQ.Magnitude() - lenPQ
+	hitpos = orig.Add(dir.ScalarProduct(lenOP))
+	norm := hitpos.Sub(oc)
+
+	return true, hitpos, norm.Norm()
+}
+
+// SphereToShape converts a slice of spheres to a slice of shapes
+func SphereToShape(sps []Sphere) []Shape {
+	shs := make([]Shape, len(sps))
+	for i, s := range sps {
+		shs[i] = s
+	}
+	return shs
 }
